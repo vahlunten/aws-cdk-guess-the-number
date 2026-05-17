@@ -41,9 +41,9 @@ jobs:
       - name: Retrieve API URL
         id: get_api_url
         run: |
-          API_URL=$(aws cloudformation describe-stacks --stack-name GuessTheNumberStack --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
-          echo "API_URL=$API_URL"
-          echo "API_URL=$API_URL" >> $GITHUB_ENV
+          # API_URL=$(aws cloudformation describe-stacks --stack-name GuessTheNumberStack --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
+          # echo "API_URL=$API_URL"
+          echo "API_URL=https://dz7eji9vvk.execute-api.eu-north-1.amazonaws.com/prod/" >> $GITHUB_ENV
 
       - name: Run integration tests
         env:
