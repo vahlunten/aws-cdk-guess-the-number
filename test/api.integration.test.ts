@@ -54,13 +54,13 @@ describe('Guess The Number API', () => {
 
     await completeGame(newGameId);
 
-    const response = await api.post('make-guess', { gameId: newGameId, guess: 50 });
+    const response = await api.post('make-guess', { gameId: newGameId, guess: MAX_GUESS });
     expect(response.status).toBe(409);
     expect(response.data.message).toContain('already completed');
   }, 30000);
 
   it('POST /make-guess returns 404 for a non-existent gameId', async () => {
-    const response = await api.post('make-guess', { gameId: 'non-existent-id', guess: 50 });
+    const response = await api.post('make-guess', { gameId: 'non-existent-id', guess: MAX_GUESS });
 
     expect(response.status).toBe(404);
     expect(response.data.message).toBe('Game not found.');
