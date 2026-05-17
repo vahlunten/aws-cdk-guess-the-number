@@ -3,6 +3,7 @@ name: CDK Deploy
 on:
   push:
     branches: ['main']
+  workflow_dispatch: {}
 
 jobs:
   aws_cdk:
@@ -36,3 +37,15 @@ jobs:
 
       - name: Deploy stack
         run: cdk deploy --all --require-approval never
+
+      - name: Retrieve API URL
+        id: get_api_url
+        run: |
+          API_URL=$(aws cloudformation describe-stacks --stack-name GuessTheNumberStack --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
+          echo "API_URL=$API_URL"
+          echo "API_URL=$API_URL" >> $GITHUB_ENV
+
+      - name: Run integration tests
+        env:
+          API_URL: ${{ env.API_URL }}
+        run: npm run test:integration -- --verbose
