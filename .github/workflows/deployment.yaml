@@ -36,16 +36,19 @@ jobs:
         run: cdk synth
 
       - name: Deploy stack
-        run: cdk deploy --all --require-approval never
+        run: cdk deploy --all --require-approval never 2>&1 | tee deploy.log
 
-      - name: Retrieve API URL
-        id: get_api_url
+      - name: Extract ApiUrl from deploy log
+        id: extract_api_url
         run: |
-          # API_URL=$(aws cloudformation describe-stacks --stack-name GuessTheNumberStack --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
-          # echo "API_URL=$API_URL"
-          echo "API_URL=https://dz7eji9vvk.execute-api.eu-north-1.amazonaws.com/prod/" >> $GITHUB_ENV
+          API_URL=$(grep -m1 'GuessTheNumberStack.*ApiUrl' deploy.log | sed -E 's/.*ApiUrl = //; s/[[:space:]]*$//')
+          if [ -z "$API_URL" ]; then
+            echo "Failed to extract ApiUrl from deploy.log"
+            exit 1
+          fi
+          echo "API_URL=$API_URL" >> $GITHUB_ENV
 
       - name: Run integration tests
         env:
           API_URL: ${{ env.API_URL }}
-        run: npm run test:integration -- --verbose
+        run: npm run test:integration
